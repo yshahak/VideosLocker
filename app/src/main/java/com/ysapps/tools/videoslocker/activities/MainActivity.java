@@ -1,12 +1,10 @@
 package com.ysapps.tools.videoslocker.activities;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
 import com.ysapps.tools.videoslocker.R;
-import com.ysapps.tools.videoslocker.system.Utils;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -14,9 +12,9 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Cursor videoCursor = Utils.getAllVideos(this);
-        int columnCount = videoCursor.getColumnCount();
+        setContentView(R.layout.main);
+        /*Cursor videoCursor = Utils.getAllVideos(this);
+        int columnCount = videoCursor.getColumnCount();*/
     }
 
     @Override
