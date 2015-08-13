@@ -58,10 +58,14 @@ public class FragmentVideos extends ContractListFragment<VideosFragment.Contract
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == ID_LOADER_VIDEO){
+            String[] projection = {
+                    MediaStore.Video.Media._ID,
+                    MediaStore.Video.Media.TITLE
+            };
             return(new CursorLoader(
                         getActivity(),
                         MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                        null, //will return all available columns, not the most efficient approach, but it is convenient
+                        projection, //will return all available columns, not the most efficient approach, but it is convenient
                         null,
                         null,
                         MediaStore.Video.Media.TITLE)); //the sort ordering is alphabeta
@@ -83,7 +87,7 @@ public class FragmentVideos extends ContractListFragment<VideosFragment.Contract
         if (column == c.getColumnIndex(MediaStore.Video.Media._ID)) {
             Uri video = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, c.getInt(column));
             DisplayImageOptions opts = new DisplayImageOptions.Builder()
-                        .showImageOnLoading(android.R.drawable.presence_video_online)
+                        .showImageOnLoading(R.mipmap.ic_launcher)
                         .build();
             imageLoader.displayImage(video.toString(), (ImageView)v, opts);
             return(true);
