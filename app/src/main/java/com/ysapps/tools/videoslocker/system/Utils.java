@@ -71,7 +71,7 @@ public class Utils {
             }
             if (moved) {
                 //copyFile(origin, outputFileEx);
-                //removeFromGallery(context, uriOfMedia);
+                removeFromGallery(context, uriOfMedia);
                 //playVideo(context, outputFileEx);
                 VideoData videoData = new VideoData(title, pathFromUri, outputFile.getPath());
                 return videoData;
@@ -83,7 +83,7 @@ public class Utils {
         }
     }
 
-    private static void playVideo(Context context, File myFile) {
+   /* private static void playVideo(Context context, File myFile) {
         boolean read = myFile.setReadable(true, true);
         Logger.logD(read);
         String videoResource = myFile.getPath();
@@ -91,9 +91,9 @@ public class Utils {
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(intentUri, "video/*");
+        intent.setDataAndType(intentUri, "video*//*");
         context.startActivity(intent);
-    }
+    }*/
 
     public static void playVideo(Context context, String path) {
         File dirTemp = new File(context.getExternalFilesDir(null) + File.separator + "videosFiles");

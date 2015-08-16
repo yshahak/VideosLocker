@@ -32,7 +32,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     String[] titles = {"Videos", "Locked"};
 
-
+    private final int CODE_SET_FIRST_PASS = 1;
     private ArrayList<VideoData> videoData;
     public MyViewPager viewPager;
     private ViewGroup rootView;
@@ -46,18 +46,34 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(icicle);
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         if ("0".equals(pref.getString(ChangePasswordActivity.KEY_LOCK_SCREEN_PASSWORD, "0"))) {
-            startActivity(new Intent(this, ChangePasswordActivity.class));
-        }
-        showLockerWindow();
-        setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            startActivityForResult(new Intent(this, ChangePasswordActivity.class), CODE_SET_FIRST_PASS);
+        } else {
+            showLockerWindow();
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
-        viewPager = (MyViewPager)findViewById(R.id.pager);
-        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-        TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
-        titleIndicator.setViewPager(viewPager);
-        videoData = Utils.load(this);
+            setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
+            viewPager = (MyViewPager) findViewById(R.id.pager);
+            viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+            TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
+            titleIndicator.setViewPager(viewPager);
+            videoData = Utils.load(this);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODE_SET_FIRST_PASS && resultCode == RESULT_OK){
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
+            viewPager = (MyViewPager) findViewById(R.id.pager);
+            viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+            TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
+            titleIndicator.setViewPager(viewPager);
+            videoData = Utils.load(this);
+        }
     }
 
     @Override

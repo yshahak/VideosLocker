@@ -37,7 +37,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
     private Context context;
     private final int rowDpHeight = 64;
     private SparseBooleanArray hideArray = new SparseBooleanArray();
-    private MenuItem lockMenu;
+    public MenuItem lockMenu;
     public HashMap<Uri, String> videosToLock = new HashMap<>();
 
     public VideosRecycleAdapter(Cursor c, Context context, MenuItem lockMenu) {
@@ -64,6 +64,11 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
                 videosToLock.remove(key);
         }
         lockMenu.setVisible(videosToLock.size() > 0);
+        /*boolean visible = videosToLock.size() > 0;
+        if (visible != lockMenu.isVisible()) {
+            ((Activity)context).invalidateOptionsMenu();
+            lockMenu.setVisible(visible);
+        }*/
     }
 
 

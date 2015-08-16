@@ -107,6 +107,11 @@ public class FragmentVideos extends Fragment
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.menu_main, menu);
         lockMenu = menu.findItem(R.id.action_lock_videos);
+        if (rv != null) {
+            VideosRecycleAdapter adapter = (VideosRecycleAdapter) rv.getAdapter();
+            if (adapter != null)
+                adapter.lockMenu = lockMenu;
+        }
     }
 
     @Override
