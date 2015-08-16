@@ -1,98 +1,136 @@
 package com.ysapps.tools.videoslocker.fragments;
 
-import android.app.Activity;
-import android.content.ContentUris;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.ysapps.tools.videoslocker.R;
-import com.ysapps.tools.videoslocker.system.ContractListFragment;
+import com.ysapps.tools.videoslocker.activities.ChangePasswordActivity;
+import com.ysapps.tools.videoslocker.activities.MainActivity;
+import com.ysapps.tools.videoslocker.system.Utils;
+import com.ysapps.tools.videoslocker.system.VideoData;
+import com.ysapps.tools.videoslocker.system.VideosRecycleAdapter;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yshahak on 12/08/2015.
  */
-public class FragmentVideos extends ContractListFragment<VideosFragment.Contract>
-            implements LoaderManager.LoaderCallbacks<Cursor>, SimpleCursorAdapter.ViewBinder {
+public class FragmentVideos extends Fragment
+        implements LoaderManager.LoaderCallbacks<Cursor>  {
 
-    private final int ID_LOADER_VIDEO = 0;
-    ImageLoader imageLoader;
+    private RecyclerView rv;
+    SharedPreferences pref;
+    private MenuItem lockMenu;
+
+    public static FragmentVideos newInstance(){
+        return new FragmentVideos();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+        pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        String[] from = { MediaStore.Video.Media.TITLE, MediaStore.Video.Media._ID };
-        int[] to= { android.R.id.text1, R.id.thumbnail };
-        SimpleCursorAdapter adapter=
-                    new SimpleCursorAdapter(
-                                getActivity(),
-                                R.layout.row, // the layout inflate
-                                null,         //cursor
-                                from,         //the columns we want from the content provider
-                                to,           //this ids inside the layout
-                                0); //flags
-        adapter.setViewBinder(this); //for bind the thumbnail and the results from cursor
-        setListAdapter(adapter);
-        getLoaderManager().initLoader(ID_LOADER_VIDEO, null, this);
+
+        getLoaderManager().initLoader(0, null, this);
+
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        //return super.onCreateView(inflater, container, savedInstanceState);
+        ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_videos, container, false);
+        rv = (RecyclerView) root.findViewById(R.id.my_recycler_view);
+        rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        return root;
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ImageLoaderConfiguration ilConfig = new ImageLoaderConfiguration.Builder(activity).build();
-        imageLoader = ImageLoader.getInstance();
-        imageLoader.init(ilConfig);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (id == ID_LOADER_VIDEO){
-            String[] projection = {
-                    MediaStore.Video.Media._ID,
-                    MediaStore.Video.Media.TITLE
-            };
-            return(new CursorLoader(
-                        getActivity(),
-                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                        projection, //will return all available columns, not the most efficient approach, but it is convenient
-                        null,
-                        null,
-                        MediaStore.Video.Media.TITLE)); //the sort ordering is alphabeta
-        }
-        return null;
+    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+        String[] projection = {
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.TITLE,
+                MediaStore.Video.Media.DATA,
+                MediaStore.Video.Media.MIME_TYPE
+        };
+        return(new CursorLoader(getActivity(),
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                null,
+                null,
+                MediaStore.Video.Media.TITLE));
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
-        ((CursorAdapter)getListAdapter()).swapCursor(c);
-    }
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        ((CursorAdapter)getListAdapter()).swapCursor(null);
+        rv.setAdapter(new VideosRecycleAdapter(c, getActivity(), lockMenu));
     }
 
     @Override
-    public boolean setViewValue(View v, Cursor c, int column) {
-        if (column == c.getColumnIndex(MediaStore.Video.Media._ID)) {
-            Uri video = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, c.getInt(column));
-            DisplayImageOptions opts = new DisplayImageOptions.Builder()
-                        .showImageOnLoading(R.mipmap.ic_launcher)
-                        .build();
-            imageLoader.displayImage(video.toString(), (ImageView)v, opts);
-            return(true);
+    public void onLoaderReset(Loader<Cursor> loader) {
+        //rv.setAdapter(new VideosRecycleAdapter(null, getActivity()));
+    }
+
+   /* @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getActivity().getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }*/
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_main, menu);
+        lockMenu = menu.findItem(R.id.action_lock_videos);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_lock_videos){
+            startVideoRemoveSession((VideosRecycleAdapter)rv.getAdapter());
+        } else {
+            Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
+            startActivity(intent);
         }
-        return false;
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void startVideoRemoveSession(VideosRecycleAdapter adapter) {
+        Set<Map.Entry<Uri, String>> set =  adapter.videosToLock.entrySet();
+        for (Object aSet : set) {
+            Map.Entry pair = (Map.Entry) aSet;
+            VideoData newVideo = Utils.removeFileToNewPlace(getActivity(), (Uri) pair.getKey(), (String) pair.getValue());
+            if (newVideo != null){
+                FragmentLocksVideos.addStringToPath((MainActivity) getActivity(), newVideo);
+            }else{
+                //TODO handle remove file not worked
+            }
+        }
     }
 
 

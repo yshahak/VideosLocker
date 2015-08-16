@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -36,11 +37,12 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
     private Context context;
     private final int rowDpHeight = 64;
     private SparseBooleanArray hideArray = new SparseBooleanArray();
-    //public ArrayList<String> videosToLock = new ArrayList<>();
+    private MenuItem lockMenu;
     public HashMap<Uri, String> videosToLock = new HashMap<>();
 
-    public VideosRecycleAdapter(Cursor c, Context context) {
+    public VideosRecycleAdapter(Cursor c, Context context, MenuItem lockMenu) {
         this.videosCursor = c;
+        this.lockMenu = lockMenu;
         this.videosCursor.moveToFirst();
         this.idIndex = videosCursor.getColumnIndex(MediaStore.Video.Media._ID);
         this.titleIndex = videosCursor.getColumnIndex(MediaStore.Video.Media.TITLE);
@@ -53,10 +55,15 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
 
     @Override
     public void onCheckedChanged(CompoundButton checkBox, boolean isChecked) {
+        ViewHolder viewHolder = (ViewHolder) checkBox.getTag();
+        Uri key = viewHolder.videoPath;
         if (isChecked){
-            ViewHolder viewHolder = (ViewHolder) checkBox.getTag();
-            videosToLock.put(viewHolder.videoPath, viewHolder.mimeType);
+            videosToLock.put(key, viewHolder.title.getText().toString());
+        } else {
+            if (videosToLock.containsKey(key))
+                videosToLock.remove(key);
         }
+        lockMenu.setVisible(videosToLock.size() > 0);
     }
 
 
@@ -67,7 +74,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
         private CheckBox checkBox;
         public int id;
         public Uri videoPath;
-        public String mimeType;
+        //public String mimeType;
 
         public ViewHolder(ViewGroup container) {
             super(container);
@@ -98,7 +105,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
         viewHolder.title.setText(videosCursor.getString(titleIndex));
         final Uri video = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
         viewHolder.videoPath = video;
-        viewHolder.mimeType = videosCursor.getString(mimeTypeIndex);
+        //viewHolder.mimeType = videosCursor.getString(mimeTypeIndex);
 
         viewHolder.id = id;
         viewHolder.checkBox.setTag(viewHolder);
@@ -120,20 +127,6 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
                 });
     }
 
-    public String getRealPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
 
     private void hideContainer(ViewHolder viewHolder) {
         ViewGroup.LayoutParams params = viewHolder.container.getLayoutParams();
@@ -164,27 +157,6 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
         i.setDataAndType(video, videoMimeType);
     }
 
-
-   /* class CustomRequestHandler extends RequestHandler {
-
-        public String SCHEME_VIDEO ="content";
-
-        @Override
-        public boolean canHandleRequest(Request data) {
-            String scheme = data.uri.getScheme();
-            return (SCHEME_VIDEO.equals(scheme));
-        }
-
-        @Override
-        public Result load(Request data, int networkPolicy) {
-            *//*mediaMetadata.setDataSource(context, data.uri);
-            Bitmap b = mediaMetadata.getFrameAtTime(1000000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST); // frame at 1 seconds*//*
-            Bitmap bm = ThumbnailUtils.createVideoThumbnail(data.uri.getPath(), MediaStore.Images.Thumbnails.MICRO_KIND);
-            *//*Bitmap bm = MediaStore.Video.Thumbnails.getThumbnail(contentResolver,
-                    data., MediaStore.Video.Thumbnails.MICRO_KIND, null);*//*
-            return new Result(bm, Picasso.LoadedFrom.DISK);
-        }
-    }*/
 
 
 

@@ -7,8 +7,20 @@
         <item name="colorPrimaryDark">#1976D2</item>
         <item name="colorAccent">#FF4081</item>
         <item name="android:windowNoTitle">true</item>
-      <!--  &lt;!&ndash;We will be using the toolbar so no need to show ActionBar&ndash;&gt;
-        <item name="android:windowActionBar">false</item>-->
+
+        <!--<item name="android:actionBarDivider">@color/menu_item_divider</item>-->
+        <!--<item name="actionBarDivider">@color/menu_item_divider</item>-->
+        <!--<item name="android:actionButtonStyle">@style/ActionButton</item>-->
+        <!--<item name="actionBarWidgetTheme">@style/ActionBarWidgetTheme</item>-->
+    </style>
+
+    <style name="ActionBarWidgetTheme" parent="Theme.AppCompat.Light">
+        <item name="android:selectableItemBackground">@drawable/action_bar_item_selector</item>
+        <item name="selectableItemBackground">@drawable/action_bar_item_selector</item>
+    </style>
+
+    <style name="ActionButton" parent="@android:style/Widget.Holo.Light.ActionButton">
+        <item name="android:background">@android:color/background_light</item>
     </style>
 
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="menu_item">#22000000</color>
+    <color name="menu_item_divider">#000000</color>
+    <color name="grey_editFolder">#4D000000</color>
+</resources>

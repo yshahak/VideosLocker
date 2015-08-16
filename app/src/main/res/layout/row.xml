@@ -8,6 +8,7 @@
         android:id="@+id/thumbnail"
         android:layout_width="64dp"
         android:layout_height="64dp"
+        android:scaleType="centerInside"
         android:contentDescription="@string/thumbnail"/>
 
     <TextView

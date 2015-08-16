@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="15"
+        android:background="#17020202">
+
+        <TextView
+            android:id="@+id/edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="Change Passcode"
+            android:textColor="#ff090609"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/Cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/edit"
+            android:gravity="center"
+            android:text="Cancel"
+            android:textColor="#ff268dff"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="45"
+        android:background="#06000000">
+
+        <TextView
+            android:id="@+id/old_PassCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="79dp"
+            android:gravity="center"
+            android:text="Enter your old passcode"
+            android:textColor="#ff121017"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="_  _  _  _"
+            android:textSize="40sp"
+            android:id="@+id/pass_field"
+            android:textColor="#ff121017"
+            android:layout_below="@+id/old_PassCode"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true" />
+
+
+    </RelativeLayout>
+
+    <GridView
+        android:id="@+id/grid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="40"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:horizontalSpacing="2dip"
+        android:verticalSpacing="1dip"
+        android:background="@color/grey_editFolder"
+        android:listSelector="@android:color/transparent" />
+
+</LinearLayout>

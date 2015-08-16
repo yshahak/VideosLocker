@@ -1,94 +1,183 @@
 package com.ysapps.tools.videoslocker.activities;
 
-import android.app.LoaderManager;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
+import com.viewpagerindicator.TitlePageIndicator;
 import com.ysapps.tools.videoslocker.R;
+import com.ysapps.tools.videoslocker.fragments.FragmentLocksVideos;
+import com.ysapps.tools.videoslocker.fragments.FragmentVideos;
+import com.ysapps.tools.videoslocker.system.MyViewPager;
 import com.ysapps.tools.videoslocker.system.Utils;
-import com.ysapps.tools.videoslocker.system.VideosRecycleAdapter;
+import com.ysapps.tools.videoslocker.system.VideoData;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements  LoaderManager.LoaderCallbacks<Cursor>{
-    private RecyclerView rv;
+public class MainActivity extends AppCompatActivity {
+    String[] titles = {"Videos", "Locked"};
+
+
+    private ArrayList<VideoData> videoData;
+    public MyViewPager viewPager;
+    private ViewGroup rootView;
+    private StringBuilder build = new StringBuilder();
+    private SharedPreferences pref;
+    private final int TRIES_HITS = 3;
+    private int tries;
 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.main);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        if ("0".equals(pref.getString(ChangePasswordActivity.KEY_LOCK_SCREEN_PASSWORD, "0"))) {
+            startActivity(new Intent(this, ChangePasswordActivity.class));
+        }
+        showLockerWindow();
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
-
-        getLoaderManager().initLoader(0, null, this);
-        rv = (RecyclerView) findViewById(R.id.my_recycler_view);
-        rv.setLayoutManager(new LinearLayoutManager(this));
+        viewPager = (MyViewPager)findViewById(R.id.pager);
+        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+        TitlePageIndicator titleIndicator = (TitlePageIndicator)findViewById(R.id.titles);
+        titleIndicator.setViewPager(viewPager);
+        videoData = Utils.load(this);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void onStop() {
+        super.onStop();
+        Utils.save(this, videoData);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_lock_videos){
-            startVideoRemoveSession((VideosRecycleAdapter)rv.getAdapter());
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    class MyPagerAdapter extends FragmentPagerAdapter {
 
-    private void startVideoRemoveSession(VideosRecycleAdapter adapter) {
-        Set<Map.Entry<Uri, String>> set =  adapter.videosToLock.entrySet();
-        for (Object aSet : set) {
-            Map.Entry pair = (Map.Entry) aSet;
-            Utils.removeFileToNewPlace(MainActivity.this, (Uri) pair.getKey(), (String) pair.getValue());
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
 
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return titles[position];
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position){
+                case 0:
+                    return FragmentVideos.newInstance();
+                default:
+                    return FragmentLocksVideos.newInstance();
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
 
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-        String[] projection = {
-                MediaStore.Video.Media._ID,
-                MediaStore.Video.Media.TITLE,
-                MediaStore.Video.Media.DATA,
-                MediaStore.Video.Media.MIME_TYPE
-        };
-        return(new CursorLoader(this,
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                null,
-                null,
-                MediaStore.Video.Media.TITLE));
+    public Fragment getFragmentTag(int index) {
+        String tag = "android:switcher:" + viewPager.getId() + ":" + index;
+        return getSupportFragmentManager().findFragmentByTag(tag);
     }
 
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
-        rv.setAdapter(new VideosRecycleAdapter(c, this));
+    public ArrayList<VideoData> getVideoData() {
+        return videoData;
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        //((VideoAdapter)getAdapter()).setVideos(null);
+    private void showLockerWindow() {
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN ,
+                PixelFormat.TRANSLUCENT);
+        WindowManager windowManager =  getWindowManager();
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        rootView = (ViewGroup) inflater.inflate(R.layout.locker_screen, null);
+        windowManager.addView(rootView, params);
     }
 
+    private void removeLockWindow(){
+        ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(rootView);
+    }
 
+    private void resetScreen(View view){
+        ((ImageView) view.findViewById(R.id.circle1)).setImageResource(R.drawable.blue_circle);
+        ((ImageView) view.findViewById(R.id.circle2)).setImageResource(R.drawable.blue_circle);
+        ((ImageView) view.findViewById(R.id.circle3)).setImageResource(R.drawable.blue_circle);
+        ((ImageView) view.findViewById(R.id.circle4)).setImageResource(R.drawable.blue_circle);
+        build.delete(0, build.length());
+    }
 
+    public void getInputPass(final View v){
+        build.append(v.getTag());
+        int size  = build.length();
+        final View view = updateCircle(size);
+        if (size == 4) {
+            view.postDelayed(new Runnable(){
+                @Override
+                public void run() {
+                    if (Utils.checkCode(pref, build)) {
+                        removeLockWindow();
+                    }else{
+                        if (tries == TRIES_HITS){
+                            Intent startMain = new Intent(Intent.ACTION_MAIN);
+                            startMain.addCategory(Intent.CATEGORY_HOME);
+                            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(startMain);
+                            removeLockWindow();
+                        } else {
+                            view.findViewById(R.id.circels).startAnimation(AnimationUtils.loadAnimation(v.getContext(), R.anim.shake_circles));
+                            Utils.vibrate(v.getContext(), 500);
+                            tries++;
+                        }
+                    }
+                    resetScreen(view);
+                }
+            }, 100);
+        }
+    }
 
+    public View updateCircle(int index) {
+        ImageView view;
+        switch (index) {
+            case 1:
+                view = (ImageView) rootView.findViewById(R.id.circle1);
+                view.setImageResource(R.drawable.blue_circle_full);
+                break;
+            case 2:
+                view = (ImageView) rootView.findViewById(R.id.circle2);
+                view.setImageResource(R.drawable.blue_circle_full);
+                break;
+            case 3:
+                view = (ImageView) rootView.findViewById(R.id.circle3);
+                view.setImageResource(R.drawable.blue_circle_full);
+                break;
+            case 4:
+                view = (ImageView) rootView.findViewById(R.id.circle4);
+                view.setImageResource(R.drawable.blue_circle_full);
+                break;
+        }
+        return rootView;
+    }
 }

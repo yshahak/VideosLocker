@@ -23,4 +23,10 @@ public class Logger {
             Log.d("TAG", Integer.toString(log));
         }
     }
+
+    public static void logD(boolean read) {
+        if (MyApplication.logger){
+            Log.d("TAG", Boolean.toString(read));
+        }
+    }
 }
