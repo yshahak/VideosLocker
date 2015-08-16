@@ -20,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import com.ysapps.tools.videoslocker.R;
 import com.ysapps.tools.videoslocker.activities.ChangePasswordActivity;
@@ -40,6 +41,7 @@ public class FragmentVideos extends Fragment
     private RecyclerView rv;
     SharedPreferences pref;
     private MenuItem lockMenu;
+    private ProgressBar progressBar;
 
     public static FragmentVideos newInstance(){
         return new FragmentVideos();
@@ -67,6 +69,7 @@ public class FragmentVideos extends Fragment
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_videos, container, false);
         rv = (RecyclerView) root.findViewById(R.id.my_recycler_view);
         rv.setLayoutManager(new LinearLayoutManager(getActivity()));
+        progressBar = (ProgressBar)root.findViewById(R.id.progress);
         return root;
     }
 
@@ -126,6 +129,7 @@ public class FragmentVideos extends Fragment
     }
 
     private void startVideoRemoveSession(VideosRecycleAdapter adapter) {
+        progressBar.setVisibility(View.VISIBLE);
         Set<Map.Entry<Uri, String>> set =  adapter.videosToLock.entrySet();
         for (Object aSet : set) {
             Map.Entry pair = (Map.Entry) aSet;
@@ -136,6 +140,9 @@ public class FragmentVideos extends Fragment
                 //TODO handle remove file not worked
             }
         }
+        progressBar.setVisibility(View.GONE);
+
+        adapter.videosToLock.clear();
     }
 
 

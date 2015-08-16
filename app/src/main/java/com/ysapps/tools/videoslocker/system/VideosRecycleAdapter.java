@@ -64,11 +64,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
                 videosToLock.remove(key);
         }
         lockMenu.setVisible(videosToLock.size() > 0);
-        /*boolean visible = videosToLock.size() > 0;
-        if (visible != lockMenu.isVisible()) {
-            ((Activity)context).invalidateOptionsMenu();
-            lockMenu.setVisible(visible);
-        }*/
+
     }
 
 
@@ -156,7 +152,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
 
     @Override
     public void onClick(View v) {
-        Uri video=Uri.fromFile(new File(videoUri));
+        Uri video = Uri.fromFile(new File(videoUri));
         Intent i=new Intent(Intent.ACTION_VIEW);
 
         i.setDataAndType(video, videoMimeType);
