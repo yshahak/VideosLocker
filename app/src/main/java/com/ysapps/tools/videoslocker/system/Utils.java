@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -54,26 +55,21 @@ public class Utils {
     }
 
     public static VideoData removeFileToNewPlace(Context context, Uri uriOfMedia, String title) {
-        //String[] array = extension.split("/");
         File dir = new File(context.getFilesDir() + File.separator + "videosFiles");
-        //File dirTemp = new File(context.getExternalFilesDir(null) + File.separator + "videosFiles");
         dir.mkdirs();
-        //dirTemp.mkdir();
         try {
             File outputFile = new File(dir, title);
-            //File outputFileEx = new File(dirTemp, "newVideo1");
-
             String pathFromUri = getRealPathFromURI(context, uriOfMedia);
             File origin = new File(pathFromUri);
-            boolean moved = origin.renameTo(outputFile);
+            boolean moved = false;// = origin.renameTo(outputFile);
             if (!moved){
                 moved = copyFile(origin, outputFile);
             }
             if (moved) {
-                //copyFile(origin, outputFileEx);
                 removeFromGallery(context, uriOfMedia);
-                //playVideo(context, outputFileEx);
-                VideoData videoData = new VideoData(title, pathFromUri, outputFile.getPath());
+                boolean deleted = deleteRecursive(origin);
+                    Logger.logD(deleted);
+                VideoData videoData = new VideoData(title, origin.getPath(), outputFile.getPath());
                 return videoData;
             } else
                 return null;
@@ -83,34 +79,25 @@ public class Utils {
         }
     }
 
-   /* private static void playVideo(Context context, File myFile) {
-        boolean read = myFile.setReadable(true, true);
-        Logger.logD(read);
-        String videoResource = myFile.getPath();
-        Uri intentUri = Uri.fromFile(new File(videoResource));
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(intentUri, "video*//*");
-        context.startActivity(intent);
-    }*/
-
-    public static void playVideo(Context context, String path) {
-        File dirTemp = new File(context.getExternalFilesDir(null) + File.separator + "videosFiles");
-        dirTemp.mkdir();
-        File outputFileEx = new File(dirTemp, "video");
-        File origin = new File(path);
-        origin.mkdir();
-        copyFile(origin, outputFileEx);
-        outputFileEx.setReadable(true, true);
-        String videoResource = outputFileEx.getPath();
-        Uri intentUri = Uri.fromFile(new File(videoResource));
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(intentUri, "video/*");
-        context.startActivity(intent);
+    static boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+        return fileOrDirectory.delete();
     }
+
+    public static boolean restoreVideoToOldPosition(Context context,String newPath,  String originPath) {
+        File newLocation = new File(newPath);
+        File oldLocation = new File(originPath);
+        boolean copy = copyFile(newLocation, oldLocation);
+        if (copy) {
+            deleteRecursive(newLocation);
+            restoreToGallery(context, originPath);
+        }
+        return copy;
+    }
+
+
 
     private static boolean copyFile(File src,File dst) {
         InputStream is ;
@@ -148,12 +135,44 @@ public class Utils {
 
     public static void removeFromGallery(Context context, Uri uri){
         try {
-
             context.getContentResolver() .delete(uri, null, null);
         } catch (Exception e) {
             e.printStackTrace();
 
         }
+    }
+
+    public static void restoreToGallery(Context context, String path){
+        try {
+            MediaScannerConnection.scanFile(context,
+                    new String[]{path}, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Logger.logD("ExternalStorage", "Scanned " + path + ":");
+                            Logger.logD("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+    }
+
+    public static void playVideo(Context context, String path) {
+        File dirTemp = new File(context.getExternalFilesDir(null) + File.separator + "videosFiles");
+        dirTemp.mkdir();
+        File outputFileEx = new File(dirTemp, "video");
+        File origin = new File(path);
+        origin.mkdir();
+        copyFile(origin, outputFileEx);
+        outputFileEx.setReadable(true, true);
+        String videoResource = outputFileEx.getPath();
+        Uri intentUri = Uri.fromFile(new File(videoResource));
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(intentUri, "video/*");
+        context.startActivity(intent);
     }
 
     public static boolean checkCode(SharedPreferences pref, StringBuilder build) {
@@ -198,19 +217,18 @@ public class Utils {
         ArrayList<VideoData> list;
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         try {
-            //for (Integer i = 0 ; i < size ;i++){
-                Gson gson = new Gson();
-                String array = preferences.getString("json", null);
-                if (array == null)
-                    return new ArrayList<>();
-                Type type = new TypeToken<ArrayList<VideoData>>() {}.getType();
-                list = gson.fromJson(array, type);
-                //list.add(cells);
-            //}
-        } catch (ConcurrentModificationException e){
+            Gson gson = new Gson();
+            String array = preferences.getString("json", null);
+            if (array == null)
+                return new ArrayList<>();
+            Type type = new TypeToken<ArrayList<VideoData>>() {}.getType();
+            list = gson.fromJson(array, type);
+        } catch (Exception e){
             e.printStackTrace();
             return new ArrayList<>();
         }
         return list;
     }
+
+
 }

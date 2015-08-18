@@ -15,8 +15,6 @@
         android:id="@+id/titles"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-
-
         android:layout_width="fill_parent"
         android:textSize="20sp"
         android:background="?attr/colorPrimary"/>

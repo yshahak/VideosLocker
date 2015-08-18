@@ -154,9 +154,9 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
     public void onClick(View v) {
         Uri video = Uri.fromFile(new File(videoUri));
         Intent i=new Intent(Intent.ACTION_VIEW);
-
         i.setDataAndType(video, videoMimeType);
     }
+
 
 
 

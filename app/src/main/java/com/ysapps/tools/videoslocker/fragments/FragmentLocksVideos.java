@@ -80,10 +80,14 @@ public class FragmentLocksVideos extends Fragment {
 
 
 
-    public static void addStringToPath(MainActivity mainActivity, VideoData videoData){
+    public static void addStringToPath(MainActivity mainActivity, VideoData video){
+        //int size = mainActivity.getVideoData().size();
         FragmentLocksVideos fragmentLocksVideos = (FragmentLocksVideos)mainActivity.getFragmentTag(1);
-        mainActivity.getVideoData().add(0, videoData);
-        fragmentLocksVideos.rv.getAdapter().notifyItemInserted(0);
+        mainActivity.getVideoData().add(0, video);
+        /*if (size == 0)
+            fragmentLocksVideos.rv.getAdapter().notifyDataSetChanged();
+        else*/
+            fragmentLocksVideos.rv.getAdapter().notifyItemInserted(0);
     }
 
 

@@ -1,9 +1,11 @@
 package com.ysapps.tools.videoslocker.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -120,7 +122,9 @@ public class FragmentVideos extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_lock_videos){
-            startVideoRemoveSession((VideosRecycleAdapter)rv.getAdapter());
+            //startVideoRemoveSession((VideosRecycleAdapter)rv.getAdapter());
+            new BitmapAsyncTask((VideosRecycleAdapter)rv.getAdapter()).execute();
+            item.setVisible(false);
         } else {
             Intent intent = new Intent(getActivity(), ChangePasswordActivity.class);
             startActivity(intent);
@@ -128,21 +132,58 @@ public class FragmentVideos extends Fragment
         return super.onOptionsItemSelected(item);
     }
 
-    private void startVideoRemoveSession(VideosRecycleAdapter adapter) {
-        progressBar.setVisibility(View.VISIBLE);
-        Set<Map.Entry<Uri, String>> set =  adapter.videosToLock.entrySet();
-        for (Object aSet : set) {
-            Map.Entry pair = (Map.Entry) aSet;
-            VideoData newVideo = Utils.removeFileToNewPlace(getActivity(), (Uri) pair.getKey(), (String) pair.getValue());
-            if (newVideo != null){
-                FragmentLocksVideos.addStringToPath((MainActivity) getActivity(), newVideo);
-            }else{
-                //TODO handle remove file not worked
-            }
-        }
-        progressBar.setVisibility(View.GONE);
+    private class BitmapAsyncTask extends AsyncTask<Void, Integer, Void> {
 
-        adapter.videosToLock.clear();
+        VideosRecycleAdapter adapter;
+        private ProgressDialog dialog;
+
+        public BitmapAsyncTask(VideosRecycleAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            dialog =  createDialog(adapter.videosToLock.size());
+            dialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Set<Map.Entry<Uri, String>> set =  adapter.videosToLock.entrySet();
+            int count = 0;
+            for (Object aSet : set) {
+                Map.Entry pair = (Map.Entry) aSet;
+                VideoData newVideo = Utils.removeFileToNewPlace(getActivity(), (Uri) pair.getKey(), (String) pair.getValue());
+                count++;
+                publishProgress(count);
+                if (newVideo != null){
+                    FragmentLocksVideos.addStringToPath((MainActivity) getActivity(), newVideo);
+                }else{
+                    //TODO handle remove file not worked
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            dialog.setProgress(values[0]);
+
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            dialog.dismiss();
+            adapter.videosToLock.clear();
+        }
+    }
+
+    private ProgressDialog createDialog(int size) {
+        ProgressDialog dlg = new ProgressDialog(getActivity());
+        dlg.setTitle("Processing your videos lock");
+        dlg.setMax(size);
+        dlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        return(dlg);
     }
 
 

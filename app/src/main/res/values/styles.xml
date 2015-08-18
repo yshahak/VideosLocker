@@ -7,7 +7,7 @@
         <item name="colorPrimaryDark">#1976D2</item>
         <item name="colorAccent">#FF4081</item>
         <item name="android:windowNoTitle">true</item>
-
+        <item name="vpiCirclePageIndicatorStyle">@style/CustomCirclePageIndicator</item>
         <!--<item name="android:actionBarDivider">@color/menu_item_divider</item>-->
         <!--<item name="actionBarDivider">@color/menu_item_divider</item>-->
         <!--<item name="android:actionButtonStyle">@style/ActionButton</item>-->
@@ -22,5 +22,13 @@
     <style name="ActionButton" parent="@android:style/Widget.Holo.Light.ActionButton">
         <item name="android:background">@android:color/background_light</item>
     </style>
+    <style name="CustomCirclePageIndicator" parent="Widget.TabPageIndicator">
+        <!--<item name="fillColor">@android:color/white</item>-->
+        <!--<item name="pageColor">@color/grey_editFolder</item>-->
+        <!--<item name="strokeWidth">0dp</item>-->
+        <!--<item name="radius">3dp</item>-->
+        <!--<item name="centered">true</item>-->
+    </style>
+
 
 </resources>
