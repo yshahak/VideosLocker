@@ -2,6 +2,8 @@ package com.ysapps.tools.videoslocker.system;
 
 import android.app.Application;
 
+import com.flurry.android.FlurryAgent;
+
 
 /**
  * Created by yshahak on 07/01/2015.
@@ -9,18 +11,21 @@ import android.app.Application;
 public class MyApplication extends Application {
     //Tracker tracker;
     String TAG = getClass().getSimpleName();
-    final String TRIM = "TRIM_MEMORY";
-    final String FLARRY = "";
-    public final static boolean logger = true;
+
+    public final static boolean logger = false;
+    private final String Flurry_id = "Q5VFZ6MTVW92PJQ7QR63";
 
 
 
     @Override
-    public void onCreate()  {
+    public void onCreate() {
         super.onCreate();
-        //FlurryAgent.setLogEnabled(false);
-        //FlurryAgent.init(this, FLARRY);
 
+        // configure Flurry
+        FlurryAgent.setLogEnabled(false);
+
+        // init Flurry
+        FlurryAgent.init(this, Flurry_id);
     }
 
 

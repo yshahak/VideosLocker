@@ -21,6 +21,14 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.flurry.android.FlurryAgent;
+import com.revmob.RevMob;
+import com.revmob.RevMobAdsListener;
+import com.revmob.ads.interstitial.RevMobFullscreen;
+import com.startapp.android.publish.Ad;
+import com.startapp.android.publish.AdDisplayListener;
+import com.startapp.android.publish.StartAppAd;
+import com.startapp.android.publish.StartAppSDK;
 import com.viewpagerindicator.TitlePageIndicator;
 import com.ysapps.tools.videoslocker.R;
 import com.ysapps.tools.videoslocker.fragments.FragmentLocksVideos;
@@ -32,9 +40,13 @@ import com.ysapps.tools.videoslocker.system.VideoData;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdDisplayListener {
+    private static final String KEY_LOCK_VISIBLE = "lockVisible";
     String[] titles = {"Videos", "Locked"};
-
+    private final String StartApp_id = "207259796";
+    private StartAppAd startAppAd = new StartAppAd(this);;
+    private RevMob revmob;
+    private RevMobFullscreen fullscreen;
     private final int CODE_SET_FIRST_PASS = 1;
     private ArrayList<VideoData> videoData;
     public MyViewPager viewPager;
@@ -45,15 +57,43 @@ public class MainActivity extends AppCompatActivity {
     private int tries;
 
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODE_SET_FIRST_PASS && resultCode == RESULT_OK){
+            startAppAd.showAd(this);
+            startAppAd.loadAd();
+            setContentView(R.layout.activity_main);
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
+            viewPager = (MyViewPager) findViewById(R.id.pager);
+            viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+            TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
+            titleIndicator.setViewPager(viewPager);
+            videoData = Utils.load(this);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_LOCK_VISIBLE, rootView != null);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        StartAppSDK.init(this, StartApp_id, true);
+        revmob = RevMob.startWithListener(this, revmobListener);
+        if (savedInstanceState != null)
+            loadFullscreen();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         if ("0".equals(pref.getString(ChangePasswordActivity.KEY_LOCK_SCREEN_PASSWORD, "0"))) {
             startActivityForResult(new Intent(this, ChangePasswordActivity.class), CODE_SET_FIRST_PASS);
         } else {
-            showLockerWindow();
+            if (savedInstanceState == null || savedInstanceState.getBoolean(KEY_LOCK_VISIBLE))
+                showLockerWindow();
             setContentView(R.layout.activity_main);
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -68,28 +108,98 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onStart(){
+        super.onStart();
+        FlurryAgent.onStartSession(this);
+    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CODE_SET_FIRST_PASS && resultCode == RESULT_OK){
-            setContentView(R.layout.activity_main);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
-            viewPager = (MyViewPager) findViewById(R.id.pager);
-            viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-            TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
-            titleIndicator.setViewPager(viewPager);
-            videoData = Utils.load(this);
-        }
+    public void onResume() {
+        super.onResume();
+        startAppAd.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        startAppAd.onPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        FlurryAgent.onEndSession(this);
         Utils.save(this, videoData);
+
     }
+
+    @Override
+    public void onBackPressed() {
+        startAppAd.onBackPressed();
+        super.onBackPressed();
+    }
+
+    RevMobAdsListener revmobListener = new RevMobAdsListener() {
+        @Override
+        public void onRevMobSessionIsStarted() {
+            loadFullscreen(); // pre-load it without showing it
+        }
+
+        @Override
+        public void onRevMobAdNotReceived(String message) {
+            super.onRevMobAdNotReceived(message);
+        }
+
+        @Override
+        public void onRevMobAdReceived() {
+            super.onRevMobAdReceived();
+        }
+    };
+
+    public void loadFullscreen() {
+        fullscreen = revmob.createFullscreen(this, null);
+    }
+
+    /*@Override
+    public void onReceiveAd(Ad ad) {
+//            if (interstitial){
+//                startAppAd.showAd(); // show the ad
+//                startAppAd.loadAd(); // load the next ad
+//            } else{
+//                fullscreen.show();
+//            }
+//        } else {
+//            startAppAd.showAd(EntryActivity.this); // show the ad
+//            startAppAd.loadAd(); // load the next ad
+//        }
+    }
+
+    @Override
+    public void onFailedToReceiveAd(Ad ad) {
+
+    }*/
+
+    @Override
+    public void adHidden(Ad ad) {
+        if (fullscreen != null)
+            fullscreen.show();
+    }
+
+    @Override
+    public void adDisplayed(Ad ad) {
+    }
+    @Override
+    public void adClicked(Ad ad) {
+    }
+
+    @Override
+    public void adNotDisplayed(Ad ad) {
+        if (fullscreen != null)
+            fullscreen.show();
+    }
+
+
 
     class MyPagerAdapter extends FragmentPagerAdapter {
 
@@ -138,12 +248,15 @@ public class MainActivity extends AppCompatActivity {
                 PixelFormat.TRANSLUCENT);
         WindowManager windowManager =  getWindowManager();
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        rootView = (ViewGroup) inflater.inflate(R.layout.locker_screen, null);
+        rootView = (ViewGroup) inflater.inflate(R.layout.locker_screen, rootView);
         windowManager.addView(rootView, params);
     }
 
     private void removeLockWindow(){
         ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(rootView);
+        rootView = null;
+        startAppAd.showAd(this);
+        startAppAd.loadAd();
     }
 
     private void resetScreen(View view){

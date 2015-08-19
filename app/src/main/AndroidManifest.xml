@@ -26,6 +26,32 @@
         </activity>
 
         <activity android:name=".activities.ChangePasswordActivity"/>
+
+
+        <!-- StartApp    -->
+        <activity android:name="com.startapp.android.publish.list3d.List3DActivity"
+            android:theme="@android:style/Theme" />
+
+        <activity android:name="com.startapp.android.publish.OverlayActivity"
+            android:theme="@android:style/Theme.Translucent"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <activity android:name="com.startapp.android.publish.FullScreenActivity"
+            android:theme="@android:style/Theme"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <!-- Declare RevMob activity -->
+        <activity
+            android:name="com.revmob.FullscreenActivity"
+            android:configChanges="keyboardHidden|orientation" >
+        </activity>
+
+        <!-- RevMob Media ID -->
+        <meta-data android:name="com.revmob.app.id" android:value="55d4241889da7aed5aa85c3d"/>
+
     </application>
+
+
+
 
 </manifest>

@@ -58,7 +58,12 @@
 -keep public class com.android.vending.licensing.ILicensingService
 
 -keep class com.flurry.** { *; }
+-dontwarn com.revmob.**
+-dontwarn com.flurry.**
 
+-keep class com.startapp.** {
+      *;
+}
 
 -keepclassmembernames class * {
     @com.google.android.gms.common.annotation.KeepName *;
