@@ -40,6 +40,7 @@ public class VideosRecycleAdapter extends RecyclerView.Adapter<VideosRecycleAdap
     public MenuItem lockMenu;
     public HashMap<Uri, String> videosToLock = new HashMap<>();
 
+
     public VideosRecycleAdapter(Cursor c, Context context, MenuItem lockMenu) {
         this.videosCursor = c;
         this.lockMenu = lockMenu;

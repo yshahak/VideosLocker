@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -46,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT)
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory())));
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         if ("0".equals(pref.getString(ChangePasswordActivity.KEY_LOCK_SCREEN_PASSWORD, "0"))) {
             startActivityForResult(new Intent(this, ChangePasswordActivity.class), CODE_SET_FIRST_PASS);
@@ -57,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
             setSupportActionBar(toolbar); // define the toolBar as the actionBar of that Activity
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            getSupportActionBar().setTitle(null);
+
             viewPager = (MyViewPager) findViewById(R.id.pager);
             viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
             TitlePageIndicator titleIndicator = (TitlePageIndicator) findViewById(R.id.titles);
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
             videoData = Utils.load(this);
         }
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

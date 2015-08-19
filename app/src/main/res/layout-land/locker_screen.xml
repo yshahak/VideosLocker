@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/lock_scr">
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="Enter  Passcode"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:id="@+id/circels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="80dp"
+        android:layout_marginTop="20dp" >
+
+        <include
+            android:id="@+id/circle1"
+            layout="@layout/circle" />
+
+        <include
+            android:id="@+id/circle2"
+            layout="@layout/circle" />
+
+        <include
+            android:id="@+id/circle3"
+            layout="@layout/circle" />
+
+        <include
+            android:id="@+id/circle4"
+            layout="@layout/circle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/circels"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="5dp"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" >
+
+                <ImageView
+                    android:id="@+id/digit_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="1dp"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_1"
+                    android:tag="1" />
+
+                <ImageView
+                    android:id="@+id/digit_2"
+                    android:layout_width="0dp"
+                    android:padding="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_2"
+                    android:tag="2" />
+
+                <ImageView
+                    android:id="@+id/digit_3"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:padding="1dp"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_3"
+                    android:tag="3" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" >
+
+                <ImageView
+                    android:id="@+id/digit_4"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:padding="1dp"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_4"
+                    android:tag="4" />
+
+                <ImageView
+                    android:id="@+id/digit_5"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:padding="1dp"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_5"
+                    android:tag="5" />
+
+                <ImageView
+                    android:id="@+id/digit_6"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="1dp"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_6"
+                    android:tag="6" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" >
+
+                <ImageView
+                    android:id="@+id/digit_7"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:padding="1dp"
+                    android:src="@drawable/digit_7"
+                    android:tag="7" />
+
+                <ImageView
+                    android:id="@+id/digit_8"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:padding="1dp"
+                    android:src="@drawable/digit_8"
+                    android:tag="8" />
+
+                <ImageView
+                    android:id="@+id/digit_9"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:padding="1dp"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:src="@drawable/digit_9"
+                    android:tag="9" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginBottom="1dp"
+            android:layout_marginTop="1dp" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" >
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="1dp"
+                    android:clickable="false" />
+
+                <ImageView
+                    android:id="@+id/digit_0"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:onClick="getInputPass"
+                    android:padding="1dp"
+                    android:src="@drawable/digit_0"
+                    android:tag="0" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:padding="1dp"
+                    android:clickable="false" />
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>
